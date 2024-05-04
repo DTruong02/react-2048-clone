@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import {runOnJS} from 'react-native-reanimated';
+import GameOver from './GameOver';
 import Tile from './Tile';
 import {GRID_SIZE, POSITIONS} from './utils/contants';
 import {TBoxState, BoxState, TDirection} from './utils/types';
@@ -27,8 +28,15 @@ const INITIAL_SETUP = {
 };
 
 const Grid = () => {
+  const [isGameOver, setIsGameOver] = useState(false);
   const [boxes, setBoxes] = useState<TBoxState>(INITIAL_SETUP);
   const [boxesPosition, setBoxesPosition] = useState<BoxState[]>([]);
+
+  const playAgain = () => {
+    setBoxesPosition([]);
+    setBoxes(INITIAL_SETUP);
+    setIsGameOver(false);
+  };
 
   useEffect(() => {
     setNewTile();
@@ -39,6 +47,11 @@ const Grid = () => {
     const possibleIds = Object.keys(boxes).filter(id => boxes[id].hide);
     const chosenTile =
       possibleIds[Math.floor(Math.random() * possibleIds.length)];
+
+    if (!chosenTile) {
+      setIsGameOver(true);
+      return;
+    }
 
     setBoxesPosition(prev => {
       const availablePositions: string[] = [];
@@ -110,14 +123,17 @@ const Grid = () => {
   });
 
   return (
-    <GestureDetector gesture={gesture}>
-      <View style={styles.grid}>
-        {Object.keys(boxes).map(key => {
-          const boxPosition = boxesPosition.find(b => b.id === boxes[key].id);
-          return <Tile {...boxPosition} {...boxes[key]} key={key} />;
-        })}
-      </View>
-    </GestureDetector>
+    <>
+      <GameOver show={isGameOver} playAgain={playAgain} />
+      <GestureDetector gesture={gesture}>
+        <View style={styles.grid}>
+          {Object.keys(boxes).map(key => {
+            const boxPosition = boxesPosition.find(b => b.id === boxes[key].id);
+            return <Tile {...boxPosition} {...boxes[key]} key={key} />;
+          })}
+        </View>
+      </GestureDetector>
+    </>
   );
 };
 
@@ -133,6 +149,7 @@ const styles = StyleSheet.create({
     width: GRID_SIZE,
     height: GRID_SIZE,
     borderRadius: 4,
+    backgroundColor: '#fefae0',
   },
 });
 

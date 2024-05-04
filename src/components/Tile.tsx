@@ -11,14 +11,26 @@ type TTile = {
   hide: boolean;
   id: number;
 };
+
+const DEFAULT_POSITION = BOX_SIZE + BOX_SIZE / 2;
+
 const Tile: FC<TTile> = ({x = 0, y = 0, color = 0, hide}) => {
-  const DURATION = 300;
+  const DURATION = 250;
   const animatedStyles = useAnimatedStyle(() => {
     return {
       backgroundColor: withTiming(Colors[color], {duration: DURATION}),
+      opacity: withTiming(hide ? 0 : 1, {duration: DURATION * 2}),
       transform: [
-        {translateX: withTiming(POSITIONS[x], {duration: DURATION})},
-        {translateY: withTiming(POSITIONS[y], {duration: DURATION})},
+        {
+          translateX: withTiming(hide ? DEFAULT_POSITION : POSITIONS[x], {
+            duration: DURATION,
+          }),
+        },
+        {
+          translateY: withTiming(hide ? DEFAULT_POSITION : POSITIONS[y], {
+            duration: DURATION,
+          }),
+        },
       ],
     };
   });
